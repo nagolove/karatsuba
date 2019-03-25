@@ -107,12 +107,30 @@ end
 test_sum()
 
 -- [[
--- Вычитает a - b, возвращает новые число.
+-- Вычисляет разность a - b, возвращает новые число. Число b может быть больше a, но их
+-- длина должна быть одинаковой.
 -- Знак числа хранится как знак первой цифры в таблице.
 -- ]]
 local function sub(a, b)
     assert(#a == #b)
 end
+
+local function test_sub(a, b)
+    print("test_sub")
+    local a, b = {1, 2, 3, 4}, {1, 0, 2, 0}
+    local c = sub(a, b)
+    print(string.format("%s - %s = %s", long_number_to_str(a), long_number_to_str(b), long_number_to_str(c)))
+
+    local a, b = {1, 2, 3, 4}, {1, 0, 2, 0}
+    local c = sub(a, b)
+    print(string.format("%s - %s = %s", long_number_to_str(a), long_number_to_str(b), long_number_to_str(c)))
+
+    local a, b = {1, 2, 3, 4}, {1, 0, 2, 0}
+    local c = sub(a, b)
+    print(string.format("%s - %s = %s", long_number_to_str(a), long_number_to_str(b), long_number_to_str(c)))
+end
+
+test_sub()
 
 -- [[
 -- Умножение двух чисел-таблиц методом Карацубы. Функция возвращает новое число-таблицу. 
