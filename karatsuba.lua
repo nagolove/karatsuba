@@ -14,7 +14,6 @@ end
 
 local function long_number_to_str(t)
     local s = ""
-    if t[1] < 0 then s = '-' end
     for i = 1, #t do
         s = s .. tostring(t[i])
     end
@@ -75,7 +74,12 @@ local function test_divide_table()
 
     local a = {1, 2, 3, 4}
     print(string.format("test_divide_table(%s)", long_number_to_str(a)))
-    local l, r =divide_table(a)
+    local l, r = divide_table(a)
+    print(string.format("left %s right %s", long_number_to_str(l), long_number_to_str(r)))
+
+    local a = {-4, 8}
+    print(string.format("test_divide_table(%s)", long_number_to_str(a)))
+    local l, r = divide_table(a)
     print(string.format("left %s right %s", long_number_to_str(l), long_number_to_str(r)))
 end
 
