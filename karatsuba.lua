@@ -2,8 +2,19 @@ local os = require "os"
 local inspect = require "inspect"
 local MAX_EXPONENT = 10
 
-function generate_long_number()
-    local len = math.pow(2, math.random(MAX_EXPONENT))
+math.randomseed(os.time())
+
+local function generate_number_len()
+    local l = math.pow(2, math.random(MAX_EXPONENT))
+    print("generate_number_len() =", l)
+    return l
+end
+
+function generate_long_number(len)
+    local _, frac = math.modf(math.log(len, 2))
+    print("len", len)
+    print("log", math.log(len, 2))
+    assert(frac == 0, "Длина числа не кратна степени двойки")
     local ret = {}
     ret[#ret + 1] = math.random(9)
     for i = 2, len do
@@ -24,6 +35,9 @@ end
 -- Умножает число-таблицу a на 10^n, возвращает новое число-таблицу.
 -- ]]
 local function mul10(a, n)
+    assert(n >= 0)
+    local _, frac = math.modf(n)
+    assert(frac == 0, "число должно быть целым, не дробным!")
     local value = math.pow(10, n)
     local res = {}
     for i = 1, #a do
@@ -89,7 +103,7 @@ test_divide_table()
 -- Суммирует два неотрицательных числа-таблицы, возвращает новое число-таблицу.
 -- ]]
 local function sum(a, b)
-    assert(#a == #b)
+    assert(#a == #b, "Числа должны быть одной длины, кратной двойке")
     local overflow = false
     local res = {}
     for i = #a, 1, -1 do
@@ -129,6 +143,17 @@ local function test_sum()
     print(string.format("a %s b %s", long_number_to_str(a), long_number_to_str(b)))
     local c = sum(a, b)
     print(string.format("a + b = %s", long_number_to_str(c)))
+
+    print("---------------- Start sum generation series. ----------------")
+    for i = 1, 5 do
+        print(i)
+        local a, b = generate_long_number(generate_number_len()), generate_long_number(generate_number_len())
+        --print(string.format("a %s b %s", long_number_to_str(a), long_number_to_str(b)))
+        local c = sum(a, b)
+        --print(string.format("a + b = %s", long_number_to_str(c)))
+        print("--------------------------------------------------------------")
+    end
+    print("--------------------------------------------------------------")
 end
 
 test_sum()
@@ -218,9 +243,8 @@ function print_long_number(t)
     print(string.format("%s", long_number_to_str(t)))
 end
 
-math.randomseed(os.time(nil))
 local t1 = os.time()
-local a, b = generate_long_number(), generate_long_number()
+local a, b = generate_long_number(generate_number_len()), generate_long_number(generate_number_len())
 print(string.format("a = %s\nb = %s", long_number_to_str(a), long_number_to_str(b)))
 local c = mul_karatsuba(a, b)
 print(string.format("a * b = %s", long_number_to_str(c)))
