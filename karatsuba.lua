@@ -1,9 +1,9 @@
 local os = require "os"
 local inspect = require "inspect"
-local EXPONENT = 10
+local MAX_EXPONENT = 10
 
 function generate_long_number()
-    local len = math.pow(2, 3 + math.random(EXPONENT))
+    local len = math.pow(2, math.random(MAX_EXPONENT))
     local ret = {}
     ret[#ret + 1] = math.random(9)
     for i = 2, len do
@@ -25,12 +25,35 @@ end
 -- Умножает число-таблицу a на 10^n, возвращает новое число-таблицу.
 -- ]]
 local function mul10(a, n)
-    local value = math.power(10, n)
-    for i = 1, value do
-        a[#a + 1] = 0
+    local value = math.pow(10, n)
+    local res = {}
+    for i = 1, #a do
+        res[i] = a[i]
     end
-    return a
+    local i = 1
+    while i < value do
+        res[#res + 1] = 0
+        i = i * 10
+    end
+    return res
 end
+
+local function test_mul10(a, n)
+    print("test_mul10")
+    local a, n = {1, 2, 3, 5}, 6
+    local c = mul10(a, n)
+    print(string.format("%s * 10 ^ %d = %s", long_number_to_str(a), n, long_number_to_str(c)))
+
+    local a, n = {1, 2, 3, 5}, 1
+    local c = mul10(a, n)
+    print(string.format("%s * 10 ^ %d = %s", long_number_to_str(a), n, long_number_to_str(c)))
+
+    local a, n = {1, 2, 3, 5}, 0
+    local c = mul10(a, n)
+    print(string.format("%s * 10 ^ %d = %s", long_number_to_str(a), n, long_number_to_str(c)))
+end
+
+test_mul10()
 
 -- [[
 -- Проверяет четное-ли количество аргументов в числе t. Если да, то возвращает два числа,
@@ -112,7 +135,53 @@ test_sum()
 -- Знак числа хранится как знак первой цифры в таблице.
 -- ]]
 local function sub(a, b)
+    local t = {}
+    if #a > #b then
+        for i = 1, #a - #b do
+            t[#t + 1] = 0
+        end
+        for i = 1, #b do
+            t[#t + 1] = b[i]
+        end
+        b = t
+    elseif #b > #a then
+        for i = 1, #b - #a do
+            t[#t + 1] = 0
+        end
+        for i = 1, #a do
+            t[#t + 1] = a[i]
+        end
+        b = t
+    end
+
     assert(#a == #b)
+
+    -- перестановка чисел местами если a < b
+    local minus = false
+    for i = 1, #a do
+        if b[i] > a[i] then
+            local t = a
+            a = b
+            b = t
+            minus = true
+            break
+        end
+    end
+
+    local loan = false
+    local res = {}
+    for i = #a, 1, -1 do
+        if b[i] < a[i] then
+            res[i] = a[i] - b[i]
+        else
+            res[i] = a[i] + 10 - b[i]
+            --print(i)
+            --a[i - 1] = a[i - 1] - 1
+        end
+    end
+
+    if minus then res[1] = -res[1] end
+    return res
 end
 
 local function test_sub(a, b)
@@ -121,11 +190,11 @@ local function test_sub(a, b)
     local c = sub(a, b)
     print(string.format("%s - %s = %s", long_number_to_str(a), long_number_to_str(b), long_number_to_str(c)))
 
-    local a, b = {1, 2, 3, 4}, {1, 0, 2, 0}
+    local a, b = {1, 2, 3, 4}, {1, 8, 2, 0}
     local c = sub(a, b)
     print(string.format("%s - %s = %s", long_number_to_str(a), long_number_to_str(b), long_number_to_str(c)))
 
-    local a, b = {1, 2, 3, 4}, {1, 0, 2, 0}
+    local a, b = {1, 2, 3, 4}, {2, 0}
     local c = sub(a, b)
     print(string.format("%s - %s = %s", long_number_to_str(a), long_number_to_str(b), long_number_to_str(c)))
 end
