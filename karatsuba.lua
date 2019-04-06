@@ -10,17 +10,23 @@ local function generate_number_len()
     return l
 end
 
+local meta = {}
+
+function meta.__eq(a, b)
+    assert(a and b)
+    print(string.format("meta.__eq(%s, %s)", inspect(a), inspect(b)))
+    return #a == #b
+end
+
 function generate_long_number(len)
-    local _, frac = math.modf(math.log(len, 2))
-    print("len", len)
-    print("log", math.log(len, 2))
+    local int, frac = math.modf(math.log(len) / math.log(2))
     assert(frac == 0, "Длина числа не кратна степени двойки")
     local ret = {}
     ret[#ret + 1] = math.random(9)
     for i = 2, len do
         ret[#ret + 1] = math.random(10) - 1
     end
-    return ret
+    return setmetatable(ret, meta)
 end
 
 local function long_number_to_str(t)
@@ -147,10 +153,11 @@ local function test_sum()
     print("---------------- Start sum generation series. ----------------")
     for i = 1, 5 do
         print(i)
-        local a, b = generate_long_number(generate_number_len()), generate_long_number(generate_number_len())
-        --print(string.format("a %s b %s", long_number_to_str(a), long_number_to_str(b)))
+        local len = generate_number_len()
+        local a, b = generate_long_number(len), generate_long_number(len)
+        print(string.format("(+ %s %s)", long_number_to_str(a), long_number_to_str(b)))
         local c = sum(a, b)
-        --print(string.format("a + b = %s", long_number_to_str(c)))
+        print(string.format("a + b = %s", long_number_to_str(c)))
         print("--------------------------------------------------------------")
     end
     print("--------------------------------------------------------------")
@@ -165,6 +172,9 @@ test_sum()
 -- ]]
 local function sub(a, b)
     local t = {}
+
+    -- что делает код ↓↓↓↓↓↓↓↓↓↓↓
+    -- ???
     if #a > #b then
         for i = 1, #a - #b do
             t[#t + 1] = 0
@@ -182,6 +192,7 @@ local function sub(a, b)
         end
         b = t
     end
+    -- ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑ пиши комменты сразу к циклам ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑ 
 
     assert(#a == #b)
 
@@ -189,9 +200,9 @@ local function sub(a, b)
     local minus = false
     for i = 1, #a do
         if b[i] > a[i] then
-            local t = a
-            a = b
-            b = t
+            local t = a[i]
+            a[i] = b[i]
+            b[i] = t
             minus = true
             break
         end
@@ -199,6 +210,7 @@ local function sub(a, b)
 
     local loan = false
     local res = {}
+    -- цикл вычитания, справа на лево
     for i = #a, 1, -1 do
         if b[i] < a[i] then
             res[i] = a[i] - b[i]
@@ -244,7 +256,8 @@ function print_long_number(t)
 end
 
 local t1 = os.time()
-local a, b = generate_long_number(generate_number_len()), generate_long_number(generate_number_len())
+local len = generate_number_len()
+local a, b = generate_long_number(len), generate_long_number(len)
 print(string.format("a = %s\nb = %s", long_number_to_str(a), long_number_to_str(b)))
 local c = mul_karatsuba(a, b)
 print(string.format("a * b = %s", long_number_to_str(c)))
